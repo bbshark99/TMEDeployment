@@ -1,6 +1,7 @@
 create a .env file with the following:
 
 INFURA_API_KEY=<fill this in>
+
 MAINNET_KEY=<private key of deployer acc>
 
 TREASURY_ADD=<treasury wallet>
