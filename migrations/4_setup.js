@@ -1,7 +1,7 @@
 const TMELocker = artifacts.require('./TMELocker.sol')
 const TMECrowdsale = artifacts.require('./TMECrowdsale.sol')
 const TME = artifacts.require('./TME.sol')
-require('dotenv').config()  // Store environment-specific variable from '.env' to process.env
+require('dotenv').config()
 
 module.exports = async (deployer, network, accounts) => {
   let deployAddress = accounts[0] // by convention
