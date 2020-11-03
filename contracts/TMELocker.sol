@@ -15,8 +15,10 @@ contract TMELocker is Ownable {
     address payable public treasury;
     address public tokenAdd;
     address payable public devAddress;
-    bool public readyForSale;
+    bool public readyForSale = false;
     uint256 public amtLPlocked;
+
+    bool public presaleEnded = false;
 
     uint256 oneWeekSeconds = 7 * 86400;
     uint256 twoYearSeconds = 63072000;
@@ -25,7 +27,7 @@ contract TMELocker is Ownable {
     IUniswapV2Factory public uniswapFactory;
     IUnicrypt public pol;
 
-    bool public ended;
+    bool public postsalesEnded;
 
     event Receive(uint256 amt);
     event Locked(address pair, uint256 amtLocked, uint256 releaseTime);
@@ -45,6 +47,12 @@ contract TMELocker is Ownable {
     }
 
     receive () external payable  {
+        msg.sender.send(msg.value);
+    }
+    function setPresaleEnded(bool b) onlyOwner public{
+        presaleEnded = b;
+    }
+    function receiveFunds() external payable {
         emit Receive(msg.value);
     }
     
@@ -106,7 +114,8 @@ contract TMELocker is Ownable {
    
     // to be called after crowdsale ends
     function postCrowdSale() public onlyOwner{
-        require(!ended, "ended");
+        require(presaleEnded, "presale not ended!");
+        require(!postsalesEnded, "postsalesEnded");
        // make the pair to get the address
         uniswapPair = uniswapFactory.createPair(
             address(uniswapRouter.WETH()),
@@ -129,14 +138,12 @@ contract TMELocker is Ownable {
 
         IUniswapV2Pair(uniswapPair).approve(address(pol),amtLPheld);
         // lock liquidity
-        pol.depositToken(uniswapPair, amtLPheld, block.timestamp.add(twoYearSeconds));
-        emit Locked(uniswapPair, amtLPheld, block.timestamp.add(twoYearSeconds));
-
-        IERC20 token = IERC20(tokenAdd);
+        if (address(pol)!=address(0)){
+            pol.depositToken(uniswapPair, amtLPheld, block.timestamp.add(twoYearSeconds));
+            emit Locked(uniswapPair, amtLPheld, block.timestamp.add(twoYearSeconds));
+        }
 
         // remaining tokens sent to treasury
-        
-
         uint256 totalPresaleAmt = 180 ether;
         uint256 totalTokensForUni = 120 ether;
         uint256 unsoldTokens = totalPresaleAmt.sub(totalETHContributed.mul(3));
@@ -144,7 +151,7 @@ contract TMELocker is Ownable {
 
         batches.push(Batch(treasury, unsoldTokens.add(leftOverNotMatchedWithETH), block.timestamp + oneWeekSeconds, false));
         emit BatchLocked(treasury, unsoldTokens.add(leftOverNotMatchedWithETH), block.timestamp + oneWeekSeconds);
-        ended = true;
+        postsalesEnded = true;
     }
 
     function claimLiquidity() public onlyOwner{

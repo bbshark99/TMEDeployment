@@ -2,6 +2,8 @@ pragma solidity ^0.6.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
+import "./TMELocker.sol";
+
 // import "@openzeppelin/contracts/crowdsale/Crowdsale.sol";
 // import "@openzeppelin/contracts/crowdsale/emission/AllowanceCrowdsale.sol";
 // import "@openzeppelin/contracts/crowdsale/validation/CappedCrowdsale.sol";
@@ -46,30 +48,29 @@ contract TMECrowdsale is Ownable {
     }
     function buyTokens() public payable{
         require(started, "Presale not started!");
-
         require(tokenLockerAdd != address(0), "tokenLockerAdd not set!");
 
         uint256 amtEth = msg.value;
         uint256 amtBought = contributions[msg.sender];
-        require(amtBought + amtEth <= indivCap, "Exceeded individual cap");
+        require(amtBought.add(amtEth) <= indivCap, "Exceeded individual cap");
         require(raised < cap, "Raise limit has reached");
 
         if (amtEth.add(raised) >= cap){
             uint256 amtEthToSpend = amtEth.add(raised).sub(cap);
             uint256 amtTokenToReceive = amtEthToSpend.mul(rate);
             require(amtTokenToReceive <= amtTokenLeft(), "Ran out of tokens");
-            contributions[msg.sender] = contributions[msg.sender] + amtEthToSpend;
+            contributions[msg.sender] = contributions[msg.sender].add(amtEthToSpend);
             raised = raised.add(amtEthToSpend);
             IERC20(tokenAdd).transfer(msg.sender, amtTokenToReceive);
             msg.sender.transfer(amtEth.sub(amtEthToSpend));
-            tokenLockerAdd.transfer(amtEth.sub(amtEthToSpend));
+            TMELocker(tokenLockerAdd).receiveFunds{value:amtEth.sub(amtEthToSpend)}();
         } else {
             uint256 amtTokenToReceive2 = amtEth.mul(rate);
             require(amtTokenToReceive2 <= amtTokenLeft(), "Ran out of tokens");
-            contributions[msg.sender] = contributions[msg.sender] + amtEth;
+            contributions[msg.sender] = contributions[msg.sender].add(amtEth);
             raised = raised.add(amtEth);
             IERC20(tokenAdd).transfer(msg.sender, amtTokenToReceive2);
-            tokenLockerAdd.transfer(amtEth);
+            TMELocker(tokenLockerAdd).receiveFunds{value: amtEth}();
         }
     }
 

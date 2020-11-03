@@ -27,6 +27,7 @@ module.exports = async function(callback) {
     console.log('TMECrowdsale fetched', tmeCrowdsale.address)
     console.log('TME fetched', tmeToken.address)
     console.log('TMELocker fetched', tmeLocker.address)
+    await tmeLocker.setPresaleEnded(true);
 
     // end crowdsale
     var amtTokenLeft = await tmeCrowdsale.amtTokenLeft();
@@ -37,10 +38,10 @@ module.exports = async function(callback) {
     var balTmeLocker = await tmeToken.balanceOf(tmeLocker.address);
     console.log("balTmeLocker",balTmeLocker/1E18)
     
-    const ended = await tmeLocker.ended();
-    if (!ended){
+    const postsalesEnded = await tmeLocker.postsalesEnded();
+    if (!postsalesEnded){
       const receipt = await tmeLocker.postCrowdSale();
-      console.log(receipt)
+      // console.log(receipt)
       
       batches = await tmeLocker.batches(11);
       console.log(batches.owner, batches.amount.toString(), batches.time.toString(), batches.spent)
@@ -61,18 +62,22 @@ module.exports = async function(callback) {
 
     console.log(token0, token1, reserves.reserve0.toString(), reserves.reserve1.toString(), totalSupply.toString())
 
+    const polAddress = await tmeLocker.pol();
+    console.log("pol",polAddress)
+    if (polAddress != "0x0000000000000000000000000000000000000000"){
 
-    const pol = await IUnicrypt.at(process.env.UNICRYPT_ADD)
-    const lockInfo = await pol.getTokenReleaseAtIndex(uniswapPairAdd,0);
-    // console.log(lockInfo)
-    console.log(lockInfo[0].toString(), lockInfo[1].toString())
-
-    const lockInfo2 = await pol.getUserTokenInfo(uniswapPairAdd, tmeLocker.address)
-    // console.log(lockInfo2)
-    console.log(lockInfo2[0].toString(), lockInfo2[1].toString(), lockInfo2[2].toString())
-
-    const lockInfo3 = await pol.getUserVestingAtIndex(uniswapPairAdd, tmeLocker.address, 0);
-    console.log(lockInfo3[0].toString(), lockInfo3[1].toString())
+      const pol = await IUnicrypt.at(process.env.UNICRYPT_ADD)
+      const lockInfo = await pol.getTokenReleaseAtIndex(uniswapPairAdd,0);
+      // console.log(lockInfo)
+      console.log("lockInfo", lockInfo[0].toString(), lockInfo[1].toString())
+      
+      const lockInfo2 = await pol.getUserTokenInfo(uniswapPairAdd, tmeLocker.address)
+      // console.log(lockInfo2)
+      console.log("lockInfo2", lockInfo2[0].toString(), lockInfo2[1].toString(), lockInfo2[2].toString())
+      
+      const lockInfo3 = await pol.getUserVestingAtIndex(uniswapPairAdd, tmeLocker.address, 0);
+      console.log("lockInfo3", lockInfo3[0].toString(), lockInfo3[1].toString())
+    }
 
     
     // // try withdraw

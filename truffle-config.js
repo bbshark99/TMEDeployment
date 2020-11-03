@@ -43,8 +43,8 @@ module.exports = {
         ),
       network_id: 1,
       gas: 10000000,
-      // skipDryRun: true,
-      gasPrice: String(web3.utils.toWei('25', 'gwei'))
+      skipDryRun: true,
+      gasPrice: String(web3.utils.toWei('40', 'gwei'))
     }
   },
   compilers: {
