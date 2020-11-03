@@ -54,7 +54,7 @@ module.exports = async function(callback) {
     console.log("ready", r);
     await tmeCrowdsale.setStarted(true);
     console.log("started")
-    // return;
+    return;
     
     if (r){
       var balCrowdsale = await tmeToken.balanceOf(tmeCrowdsale.address);

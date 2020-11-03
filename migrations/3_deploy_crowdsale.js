@@ -10,7 +10,6 @@ module.exports =  async (deployer, network, accounts) => {
   console.log('deploying from:' + deployAddress)
 
   const token = await TME.deployed();
-
   await deployer.deploy(TMECrowdsale, 3, "1000000000000000000", "60000000000000000000",
   token.address, {
     from: deployAddress

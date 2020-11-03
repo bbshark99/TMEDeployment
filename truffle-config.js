@@ -32,6 +32,7 @@ module.exports = {
         ),
         skipDryRun: true,
       network_id: 3, // Ropsten's id
+      gasPrice: web3.utils.toWei('50', 'gwei'), // 100 gwei
       gas: 4465030 // Ropsten has a lower block limit than mainnet
     },
    

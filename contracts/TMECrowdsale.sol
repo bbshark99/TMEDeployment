@@ -55,15 +55,19 @@ contract TMECrowdsale is Ownable {
         require(amtBought.add(amtEth) <= indivCap, "Exceeded individual cap");
         require(raised < cap, "Raise limit has reached");
 
+
         if (amtEth.add(raised) >= cap){
-            uint256 amtEthToSpend = amtEth.add(raised).sub(cap);
+            uint256 amtEthToSpend = cap.sub(raised);
+            uint256 amtEthToReturn = amtEth.sub(amtEthToSpend);
+            
             uint256 amtTokenToReceive = amtEthToSpend.mul(rate);
             require(amtTokenToReceive <= amtTokenLeft(), "Ran out of tokens");
             contributions[msg.sender] = contributions[msg.sender].add(amtEthToSpend);
-            raised = raised.add(amtEthToSpend);
+            
+            raised = raised.add(amtEthToSpend); 
             IERC20(tokenAdd).transfer(msg.sender, amtTokenToReceive);
-            msg.sender.transfer(amtEth.sub(amtEthToSpend));
-            TMELocker(tokenLockerAdd).receiveFunds{value:amtEth.sub(amtEthToSpend)}();
+            msg.sender.transfer(amtEthToReturn);
+            TMELocker(tokenLockerAdd).receiveFunds{value:amtEthToSpend}();
         } else {
             uint256 amtTokenToReceive2 = amtEth.mul(rate);
             require(amtTokenToReceive2 <= amtTokenLeft(), "Ran out of tokens");
