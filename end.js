@@ -27,13 +27,13 @@ module.exports = async function(callback) {
     console.log('TMECrowdsale fetched', tmeCrowdsale.address)
     console.log('TME fetched', tmeToken.address)
     console.log('TMELocker fetched', tmeLocker.address)
-    await tmeLocker.setPresaleEnded(true);
+    // await tmeLocker.setPresaleEnded(true);
 
     // end crowdsale
     var amtTokenLeft = await tmeCrowdsale.amtTokenLeft();
     console.log("amtTokenLeft",amtTokenLeft/1E18)
 
-    await tmeCrowdsale.claimUnsoldTokens();
+    // await tmeCrowdsale.claimUnsoldTokens();
     
     var balTmeLocker = await tmeToken.balanceOf(tmeLocker.address);
     console.log("balTmeLocker",balTmeLocker/1E18)
