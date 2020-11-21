@@ -35,13 +35,23 @@ module.exports = {
       gasPrice: web3.utils.toWei('50', 'gwei'), // 100 gwei
       gas: 4465030 // Ropsten has a lower block limit than mainnet
     },
-   
+    rinkeby: {
+      provider: () =>
+        new HDWalletProvider(
+          MAINNET_KEY,
+          `https://rinkeby.infura.io/v3/` + INFURA_API_KEY
+        ),
+        skipDryRun: true,
+      network_id: 4,
+      gas: 4612388 // Gas limit used for deploys
+    },
+
     mainnet: {
       provider: () =>
         new HDWalletProvider(
           MAINNET_KEY,
-          'http://localhost:6666'
-          // 'https://mainnet.infura.io/v3/' + INFURA_API_KEY
+          // 'http://localhost:6666'
+          'https://mainnet.infura.io/v3/' + INFURA_API_KEY
         ),
       network_id: 1,
       gas: 10000000,
@@ -49,6 +59,7 @@ module.exports = {
       gasPrice: String(web3.utils.toWei('80', 'gwei'))
     }
   },
+
   compilers: {
     solc: {
       version: '^0.6.0'
